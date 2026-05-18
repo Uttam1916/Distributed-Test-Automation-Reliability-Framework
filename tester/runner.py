@@ -3,6 +3,8 @@ import httpx
 import time
 import random
 
+
+from anomalies import detect_anomalies   
 from logger_config import logger
 from scenarios import SCENARIOS
 from metrics import init_db, save_metric         
@@ -50,8 +52,9 @@ async def run_load_test(total_requests=100):
         return results
 
 
+
 async def main():
-    init_db()                                                       
+    init_db()
     print("Starting load test...")
     results = await run_load_test(100)
 
@@ -66,6 +69,12 @@ async def main():
         avg_latency = sum(r[0] for r in successes) / len(successes)
         print(f"Avg latency: {avg_latency:.2f}ms")
 
+    # Run anomaly detection after every load test
+    print("\nRunning anomaly detection...")
+    anomalies = detect_anomalies()
+    print(f"Anomalies found: {len(anomalies)}")
+    for a in anomalies:
+        print(a)
 
 if __name__ == "__main__":
     asyncio.run(main())
